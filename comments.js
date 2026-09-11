@@ -2,43 +2,41 @@
 ES module -> wrap code with function and use export indicator
 */
 export function setupShowHideToggle() {
-    var showHideBtn = document.querySelector('.show-hide');
-    var commentWrapper = document.querySelector('.comment-wrapper');
+    const showHideBtn = document.querySelector('.show-hide'); //var zu const
+    const commentWrapper = document.querySelector('.comment-wrapper');
 
-    commentWrapper.style.display = 'none';
+    commentWrapper.hidden = true;
 
-    showHideBtn.onclick = function () {
-        var showHideText = showHideBtn.textContent;
-        if (showHideText === 'Show comment') {
-            showHideBtn.textContent = 'Hide comments';
-            commentWrapper.style.display = 'block';
-        } else {
-            showHideBtn.textContent = 'Show comments';
-            commentWrapper.style.display = 'none';
-        }
-    };
+    showHideBtn.addEventListener('click', function () { //onClick ginge auch i guess
+        const isHidden = commentWrapper.hidden;
+        commentWrapper.hidden = !isHidden;
+        showHideBtn.textContent = isHidden ? 'Hide comment' : 'Show comment';
+    });
 }
 
 // Comment form stuff
-export function commentformat(){
-    var form = document.querySelector('.comment-form');
-    var nameField = document.querySelector('#name');
-    var commentField = document.querySelector('#comment');
-    var list = document.querySelector('.comment-container');
+export function commentFormat(){
+    const form = document.querySelector('.comment-form');
+    const nameField = document.querySelector('#name');
+    const commentField = document.querySelector('#comment');
+    const list = document.querySelector('.comment-container');
 
-    form.onsubmit = function(e) {
+    form.addEventListener('submit', function(e)  { //geändert
         e.preventDefault();
 
-        var listItem = document.createElement('li');
-        var namePara = document.createElement('p');
-        var commentPara = document.createElement('p');
-        var nameValue = nameField.valeu;
-        var commentValue = commentField.value;
+        const nameValue = nameField.value;
+        const commentValue = commentField.value;
 
-        namePara.textContnet = nameValue;
+        if (!nameValue || !commentValue) return; //leerer kommentar
+
+        const listItem = document.createElement('li');
+        const namePara = document.createElement('p');
+        const commentPara = document.createElement('p');
+
+        namePara.textContent = nameValue;
         commentPara.textContent = commentValue;
 
-        console.log(nameValue);
+        //console.log(nameValue);
 
         list.appendChild(listItem);
         listItem.appendChild(namePara);
@@ -46,5 +44,5 @@ export function commentformat(){
 
         nameField.value = '';
         commentField.value = '';
-    };
+    });
 }

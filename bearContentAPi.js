@@ -1,4 +1,6 @@
 // Fetching bear data
+// Fetching bear data
+
 var baseUrl = "https://en.wikipedia.org/w/api.php";
 var title = "List_of_ursids";
 

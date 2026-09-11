@@ -8,7 +8,6 @@
     <style>
       body { font-family: Arial, sans-serif; }
       .highlight { background-color: yellow; color: black; }
-      .comment-wrapper { display: block; } 
     </style>
   </head>
   <body>
@@ -18,11 +17,11 @@
         Beautiful HTML markup
     -->
 
-    <div class="header">
-      <font size="7">Welcome to our wildlife website</font>
-    </div>
+    <header> <!-- statt class = header -->
+      <h1>Welcome to our wildlife website</h1> <!-- statt font size: 6px -> h1, h2, h3 ...-->
+    </header>
 
-    <div class="nav">
+    <nav>
       <ul>
         <li><a href="#">Home</a></li>
         <li><a href="#">Our team</a></li>
@@ -31,30 +30,27 @@
       </ul>
 
       <form class="search">
-        <input type="search" name="q" placeholder="Search query">
-        <input type="submit" value="Go!">
+        <input type="search" name="q" placeholder="Search for wildlife">
+        <input type="submit" value="Search">
       </form>
-    </div>
+    </nav>
 
     <main>
       <article>
-        <font size="6">The trouble with Bears</font>
-        <br><br>
-        By Evan Wild
-        <br><br>
-        Tall, lumbering, angry, dangerous. The real live bears of this world are proud, independent creatures, self-serving and always on the hunt for food.
-        <br><br>
-        <font size="5">Types of bear</font>
-        <br><br>
+        <h2>The trouble with Bears</h2>
+        <p>By Evan Wild</p> <!-- statt <br> -> <p> -->
+        <p>Tall, lumbering, angry, dangerous. The real live bears of this world are proud, independent creatures, self-serving and always on the hunt for food.</p>
+        <h2>Types of bear</h2>
         <table>
+          <caption>Comparison of Bear Types</caption> <!-- vorschlag von claude -> bisschen kontext geben -->
           <thead>
             <tr>
-              <td>Bear Type</td>
-              <td>Coat</td>
-              <td>Adult size</td>
-              <td>Habitat</td>
-              <td>Lifespan</td>
-              <td>Diet</td>
+              <th>Bear Type</th> <!-- statt td -> th (Überschriften) -->
+              <th>Coat</th>
+              <th>Adult size</th>
+              <th>Habitat</th>
+              <th>Lifespan</th>
+              <th>Diet</th>
             </tr>
           </thead>
           <tbody>
@@ -69,7 +65,7 @@
             <tr>
               <td>Urban</td>
               <td>North Face</td>
-              <td>18 to 22</td>
+              <td>18 to 22 meters</td> <!-- meters geadded -->
               <td>Condos and coffee shops</td>
               <td>20 to 32 years</td>
               <td>Starbucks, sushi</td>
@@ -77,21 +73,14 @@
           </tbody>
         </table>
 
-        <font size="5">Habitats and Eating habits</font>
-        <br><br>
-        Wild bears eat a variety of meat, fish, fruit, nuts, and other natually growing ingredients...
-        <br><br>
+        <h2>Habitats and Eating habits</h2>
+        <p>Wild bears eat a variety of meat, fish, fruit, nuts, and other natually growing ingredients...</p>
         <img src="media/wild-bear.jpg" alt="Wild bear in forest">
-        <br><br>
-        Urban (gentrified) bears on the other hand have largely abandoned the old ways...
-        <br><br>
+        <p>Urban (gentrified) bears on the other hand have largely abandoned the old ways...</p>
         <img src="media/urban-bear.jpg" alt="Urban bear near buildings">
-        <br><br>
 
-        <font size="5">Mating rituals</font>
-        <br><br>
-        Bears are romantic creatures by nature...
-        <br><br>
+        <h2>Mating rituals</h2>
+        <p>Bears are romantic creatures by nature...</p>
         <audio controls>
           <source src="media/bear.mp3" type="audio/mp3">
           <source src="media/bear.ogg" type="audio/ogg">
@@ -99,31 +88,30 @@
         </audio>
 
         <aside>
-          <font size="5">About the author</font>
-          <br><br>
-          Evan Wild is an unemployed plumber from Doncaster...
+          <h2>About the author</h2>
+            <p> Evan Wild is an unemployed plumber from Doncaster...</p>
         </aside>
 
         <section class="comments">
-          <div class="show-hide">Show comment</div> 
+          <button class="show-hide">Show comment</button>
 
           <div class="comment-wrapper">
-            <font size="6">Add comment</font>
+            <h3>Add comment</h3>
             <form class="comment-form">
               <div class="flex-pair">
-                Your name:
+               <label for="name">Your name:</label>
                 <input type="text" name="name" id="name" placeholder="Enter your name">
               </div>
               <div class="flex-pair">
-                Your comment:
+                <label for="name">Your comment:</label> <!-- stand leer im DOM herum -->
                 <input type="text" name="comment" id="comment" placeholder="Enter your comment">
               </div>
               <div>
-                <input type="submit" value="Submit comment">
+                <button type="submit" class="comment-submit">Comment</button>
               </div>
             </form>
 
-            <font size="6">Comments</font>
+            <h2>Comments</h2>
             <ul class="comment-container">
               <li>
                 <p>Bob Fossil</p>
@@ -134,12 +122,12 @@
         </section>
 
         <section class="more_bears">
-          <font size="5">More Bears</font>
+          <h2>More Bears</h2>
         </section>
       </article>
 
       <div class="secondary">
-        <font size="6">Related</font>
+        <h2>Related</h2>
         <ul>
           <li><a href="#">The trouble with Bees</a></li>
           <li><a href="#">The trouble with Otters</a></li>
