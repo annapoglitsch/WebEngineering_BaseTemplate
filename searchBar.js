@@ -1,5 +1,5 @@
 // Search highlighter
-export function searchHilighter(){
+export function searchHighlighter(){
     document.querySelector('.search').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -24,7 +24,7 @@ export function searchHilighter(){
                 }
             }
             else if (node.nodeType === 1 && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'FORM') {
-                node.childNodes.forEach(walk);
+                Array.from(node.childNodes).forEach(walk); //reihenfolge bleibt gleich (wegen array (kopie))
             }
         }
 

@@ -1,8 +1,8 @@
-import { searchHilighter } from './searchBar.js';
+import { searchHighlighter } from './searchBar.js';
 import { setupShowHideToggle, commentFormat } from './comments.js';
 import { loadBears } from './bearContentAPi.js';
 
-searchHilighter();
+searchHighlighter();
 setupShowHideToggle();
 commentFormat();
 loadBears();

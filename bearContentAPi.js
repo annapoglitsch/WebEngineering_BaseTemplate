@@ -29,53 +29,65 @@ export function fetchImageUrl(fileName) {
     }).then(function(data) {
         var pages = data.query.pages;
         var page = Object.values(pages)[0];
+
         return page.imageinfo[0].url;
     });
 }
 
 export function extractBears(wikitext) {
-    var speciesTables = wikitext.split('{{Species table/end}}');
-    var bears = [];
-    speciesTables.forEach(function(table) {
-        var rows = table.split('{{Species table/row');
-        rows.forEach(function(row) {
-            var nameMatch = row.match(/\|name=\[\[(.*?)\]\]/);
-            var binomialMatch = row.match(/\|binomial=(.*?)\n/);
-            var imageMatch = row.match(/\|image=(.*?)\n/);
+    var rows = wikitext.split('{{Species table/row').slice(1); //wikitext
 
-            if (nameMatch && binomialMatch && imageMatch) {
-                var fileName = imageMatch[1].trim().replace('File:', '');
+    return rows.map(function (row) { //map -> Reihenfolge
+        var nameMatch = row.match(/\|name=\[\[(.*?)\]\]/);
+        var binomialMatch = row.match(/\|binomial=(.*?)(?:\n|\|)/);
+        var imageMatch = row.match(/\|image=(.*?)(?:\n|\|)/);
 
-                fetchImageUrl(fileName).then(function(imageUrl) {
-                    var bear = {
-                        name: nameMatch[1],
-                        binomial: binomialMatch[1],
-                        image: imageUrl,
-                        range: "TODO extract correct range"
-                    };
-                    bears.push(bear);
+        if (!nameMatch || !binomialMatch || !imageMatch) { //unvollständige Daten -> mag ich halt nicht
+            return null;
+        }
 
-                    if (bears.length === rows.length) {
-                        var moreBears = document.querySelector('.more_bears');
-                        bears.forEach(function(bear) {
-                            var html = '<div class="bear">' +
-                                '<img src="' + bear.image + '" alt="Image of ' + bear.name + '" style="width:200px; height:auto;">' +
-                                '<p><b>' + bear.name + '</b> (' + bear.binomial + ')</p>' +
-                                '<p>Range: ' + bear.range + '</p>' +
-                                '</div>';
-                            moreBears.innerHTML += html;
-                        });
-                    }
-                });
-            }
+        var fileName = imageMatch[1].trim().replace('File:', '');
+
+        return fetchImageUrl(fileName).then(function (imageUrl) {
+            return {
+                name: nameMatch[1],
+                binomial: binomialMatch[1],
+                image: imageUrl,
+                range: "TODO extract correct range"
+            };
         });
+    }).filter(function (bearPromise) { //null werte raus
+        return bearPromise !== null;
+    });
+
+}
+
+export function insertBearsInDOM (bearPromises){
+    return Promise.all(bearPromises).then(function(bears) {
+        var moreBears = document.querySelector('.more-bears');
+        if (!moreBears) {
+            console.error('Element mit Klasse "more-bears" nicht gefunden.');
+            return;
+        }
+
+        var html = bears.map(function(bear) {
+            return '<div class="bear">' +
+                '<img src="' + bear.image + '" alt="Image of ' + bear.name + '" style="width:200px; height:auto;">' +
+                '<p><b>' + bear.name + '</b> (' + bear.binomial + ')</p>' +
+                '<p>Range: ' + bear.range + '</p>' +
+                '</div>';
+        }).join('');
+        moreBears.insertAdjacentHTML('beforeend', html);
     });
 }
 
-export function loadBears(){
-    fetch(baseUrl + "?" + new URLSearchParams(params).toString())
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            extractBears(data.parse.wikitext['*']);
-        });
+export function loadBears() {
+    return fetch(baseUrl + "?" + new URLSearchParams(params).toString())
+        .then(function (res) {
+            return res.json();
+        })
+        .then(function (data) {
+            var bearPromises = extractBears(data.parse.wikitext['*']);
+            return insertBearsInDOM(bearPromises);
+        })
 }
