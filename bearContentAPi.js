@@ -25,11 +25,20 @@ export function fetchImageUrl(fileName) {
 
     var url = baseUrl + "?" + new URLSearchParams(imageParams).toString();
     return fetch(url).then(function(res) {
+        if (!res.ok) {
+            throw new Error("HTTP error: " + res.status);
+        }
         return res.json();
     }).then(function(data) {
+        if (!data.query || !data.query.pages) {
+            throw new Error("ungültige Antwort von Wikipedia");
+        }
         var pages = data.query.pages;
         var page = Object.values(pages)[0];
-
+        if (!page.imageinfo || !page.imageinfo[0]) {
+            console.warn("kein Bild gefunden für:", fileName);
+            return "media/noImageFound.jpg";
+        }
         return page.imageinfo[0].url;
     });
 }
@@ -43,6 +52,7 @@ export function extractBears(wikitext) {
         var imageMatch = row.match(/\|image=(.*?)(?:\n|\|)/);
 
         if (!nameMatch || !binomialMatch || !imageMatch) { //unvollständige Daten -> mag ich halt nicht
+            console.warn("unvollständiger bären-datensatz:", row);
             return null;
         }
 
@@ -66,7 +76,7 @@ export function insertBearsInDOM (bearPromises){
     return Promise.all(bearPromises).then(function(bears) {
         var moreBears = document.querySelector('.more-bears');
         if (!moreBears) {
-            console.error('Element mit Klasse "more-bears" nicht gefunden.');
+            console.error('element mit klasse "more-bears" nicht gefunden.');
             return;
         }
 
@@ -89,5 +99,7 @@ export function loadBears() {
         .then(function (data) {
             var bearPromises = extractBears(data.parse.wikitext['*']);
             return insertBearsInDOM(bearPromises);
-        })
+        }).catch(function(err) {
+            console.error('fehler beim Laden der bärendaten:', err);
+        });
 }

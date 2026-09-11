@@ -1,6 +1,13 @@
 // Search highlighter
 export function searchHighlighter(){
-    document.querySelector('.search').addEventListener('submit', function(e) {
+    const searchForm = document.querySelector('.search');
+
+    if (!searchForm) {
+        console.error('Search form not found.');
+        return;
+    }
+
+    searchForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
         document.querySelectorAll('.highlight').forEach(function(el) {
@@ -10,7 +17,10 @@ export function searchHighlighter(){
         });
 
         var searchKey = this.q.value.trim();
-        if (!searchKey) return;
+        if (!searchKey) {
+            console.warn('Search input is empty.');
+            return;
+        }
 
         var regex = new RegExp('(' + searchKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
 

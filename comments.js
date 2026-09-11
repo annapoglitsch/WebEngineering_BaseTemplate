@@ -5,6 +5,11 @@ export function setupShowHideToggle() {
     const showHideBtn = document.querySelector('.show-hide'); //var zu const
     const commentWrapper = document.querySelector('.comment-wrapper');
 
+    if (!showHideBtn || !commentWrapper) {
+        console.error('Comment toggle elements not found.');
+        return;
+    }
+
     commentWrapper.hidden = true;
 
     showHideBtn.addEventListener('click', function () { //onClick ginge auch i guess
@@ -21,11 +26,16 @@ export function commentFormat(){
     const commentField = document.querySelector('#comment');
     const list = document.querySelector('.comment-container');
 
+    if (!form || !nameField || !commentField || !list) {
+        console.error('Comment form elements not found.');
+        return;
+    }
+
     form.addEventListener('submit', function(e)  { //geändert
         e.preventDefault();
 
-        const nameValue = nameField.value;
-        const commentValue = commentField.value;
+        const nameValue = nameField.value.trim();
+        const commentValue = commentField.value.trim();
 
         if (!nameValue || !commentValue) return; //leerer kommentar
 
