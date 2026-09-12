@@ -7,28 +7,29 @@ export function searchHighlighter(){
         return;
     }
 
-    searchForm.addEventListener('submit', function(e) {
+    searchForm.addEventListener('submit',  function(e) {
         e.preventDefault();
 
-        document.querySelectorAll('.highlight').forEach(function(el) {
-            var parent = el.parentNode;
+        document.querySelectorAll('.highlight').forEach((el) => {
+            const parent = el.parentNode;
             parent.replaceChild(document.createTextNode(el.textContent), el);
             parent.normalize();
         });
 
-        var searchKey = this.q.value.trim();
+        const searchKey = this.q.value.trim();
+
         if (!searchKey) {
             console.warn('Search input is empty.');
             return;
         }
 
-        var regex = new RegExp('(' + searchKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+        const regex = new RegExp('(' + searchKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
 
         function walk(node) {
             if (node.nodeType === 3) { // Text node
-                var match = node.nodeValue.match(regex);
+                const match = node.nodeValue.match(regex);
                 if (match) {
-                    var span = document.createElement('span');
+                    const span = document.createElement('span');
                     span.innerHTML = node.nodeValue.replace(regex, '<mark class="highlight">$1</mark>');
                     node.replaceWith.apply(node, span.childNodes);
                 }

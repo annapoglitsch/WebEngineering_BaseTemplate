@@ -12,7 +12,7 @@ export function setupShowHideToggle() {
 
     commentWrapper.hidden = true;
 
-    showHideBtn.addEventListener('click', function () { //onClick ginge auch i guess
+    showHideBtn.addEventListener('click', () => {
         const isHidden = commentWrapper.hidden;
         commentWrapper.hidden = !isHidden;
         showHideBtn.textContent = isHidden ? 'Hide comment' : 'Show comment';
@@ -31,7 +31,7 @@ export function commentFormat(){
         return;
     }
 
-    form.addEventListener('submit', function(e)  { //geändert
+    form.addEventListener('submit', (e) =>  { //geändert
         e.preventDefault();
 
         const nameValue = nameField.value.trim();
