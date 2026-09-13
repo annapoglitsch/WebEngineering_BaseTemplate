@@ -1,4 +1,32 @@
 // Search highlighter
+
+
+function clearHighlights(){
+    document.querySelectorAll('.highlight').forEach((el) => {
+        const parent = el.parentNode;
+        parent.replaceChild(document.createTextNode(el.textContent), el);
+        parent.normalize();
+    });
+}
+
+function highlightMatches(root, regex){
+    Array.from(root.childNodes).forEach((node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const match = node.nodeValue.match(regex);
+            if (match) {
+                const span = document.createElement('span');
+                span.innerHTML = node.nodeValue.replace(regex, '<mark class="highlight">$1</mark>');
+                node.replaceWith(...span.childNodes);
+            }
+        } else if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            !['SCRIPT', 'STYLE', 'FORM'].includes(node.tagName)
+        ) {
+            highlightMatches(node, regex);
+        }
+    });
+}
+
 export function searchHighlighter(){
     const searchForm = document.querySelector('.search');
 
@@ -7,16 +35,12 @@ export function searchHighlighter(){
         return;
     }
 
-    searchForm.addEventListener('submit',  function(e) {
+    searchForm.addEventListener('submit',  e => {
         e.preventDefault();
 
-        document.querySelectorAll('.highlight').forEach((el) => {
-            const parent = el.parentNode;
-            parent.replaceChild(document.createTextNode(el.textContent), el);
-            parent.normalize();
-        });
+        clearHighlights();
 
-        const searchKey = this.q.value.trim();
+        const searchKey = searchForm.querySelector('[name="q"]').value.trim();
 
         if (!searchKey) {
             console.warn('Search input is empty.');
@@ -25,21 +49,6 @@ export function searchHighlighter(){
 
         const regex = new RegExp('(' + searchKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
 
-        function walk(node) {
-            if (node.nodeType === 3) { // Text node
-                const match = node.nodeValue.match(regex);
-                if (match) {
-                    const span = document.createElement('span');
-                    span.innerHTML = node.nodeValue.replace(regex, '<mark class="highlight">$1</mark>');
-                    node.replaceWith.apply(node, span.childNodes);
-                }
-            }
-            else if (node.nodeType === 1 && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'FORM') {
-                Array.from(node.childNodes).forEach(walk); //reihenfolge bleibt gleich (wegen array (kopie))
-            }
-        }
-
-        walk(document.body);
+        highlightMatches(document.body, regex)
     });
-
 }

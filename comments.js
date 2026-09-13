@@ -20,7 +20,7 @@ export function setupShowHideToggle() {
 }
 
 // Comment form stuff
-export function commentFormat(){
+export function setupCommentForm(){
     const form = document.querySelector('.comment-form');
     const nameField = document.querySelector('#name');
     const commentField = document.querySelector('#comment');
@@ -46,11 +46,9 @@ export function commentFormat(){
         namePara.textContent = nameValue;
         commentPara.textContent = commentValue;
 
-        //console.log(nameValue);
-
-        list.appendChild(listItem);
         listItem.appendChild(namePara);
         listItem.appendChild(commentPara);
+        list.appendChild(listItem);
 
         nameField.value = '';
         commentField.value = '';
