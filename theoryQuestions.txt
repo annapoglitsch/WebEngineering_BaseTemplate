@@ -1,5 +1,33 @@
 Theory question: How does an ES module differ from a classic script with respect to scope, strict mode, loading, and bindings? Explain why the module boundaries you chose make the application easier to maintain.
+Scope: Normally declarations lack into window/global scope. With ES-Modules variables stay in local file. Every module has its private space
+Strict Mode: In classic script u need to use "use strict" otherwise it is not strict. In ES Modules its automatically in strict mode.
+Loading: Classical a script is loaded synchronously. Loads from the top to the bottom. ES Modules load asynchronously. First the browser loads all imported files and resolves dependencies and does it then in the correct order.
+Bindings: There is no import export scheme. If you share code between files you need to use window. However, with ES modules you have live bindings -  if a variable changes in export the import copy also adapts.
+
+ES Modules make it easier because i can split the script theme vise without destroying the code or connections. You get a better overview. -> Separation of Concerns
+Bessere Testbarkeit (später relevant wahrscheinlich)
+Explizite Abhängigkeiten import/export
+
 Theory question: Describe event propagation (capturing, target, and bubbling). Where could event delegation be useful in this application, and what trade-off would it introduce?
+Capturing: Von Außen nach innen, bsp.: document → body → div → div → knopf
+Target: Event kommt am eigentlichen Ziel an, also wo der User hingeklickt hat, button
+Bubbling: wie eine luftblase blubbert das Event von innen nach oben, knopf → div → ... → document
+auf jeder Stufe wird geprüft: Gibt es hier einen Event-Listener für dieses Event? Falls ja, wird er ausgelöst. Der dritte Parameter (true/false) entscheidet,
+ob dein Listener in der Capturing- oder Bubbling-Phase reagiert. Standardmäßig ist es false
+Zurzeit nutze ich nur Event-Listener und kein event delegation. Später könnte event delegation Sinn machen, wenn jeder Kommentar, jedes Element der Liste z.B einen Löschen-Button bekommt. Gerade ist das aber nicht die Anforderung
+weswegen ich mich für direkte Eventlistener entschieden habe, was den Code für jetzige Anforderungen ausreichend und nachvollziehbar macht.
+
 Theory question: How do synchronous exceptions and rejected promises travel through this application? Explain where errors should be caught and why catching every error at its source can make failures harder to diagnose.
+Synchrone Fehler springen sofort den Call stack hoch, bis sie von try/catch gefangen werden. Rejected Promises hingegen reisen durch die gesamte .then-Kette, überspringen alle .then blöcke und werden erst vom nächsten catch aufgefangen
+Loadbears ist ein gutes bsp.:
+
 Theory question: Explain the relationship between async/await, promises, the microtask queue, and the browser event loop. Also explain why an arrow function is not always an interchangeable replacement for a regular function, particularly regarding this.
+JavaScript kann nur eine Sache gleichzeitig tun. Damit fetch() zb die Seite nicht einfrieren gibt es mehrere Warteschlangen.
+microtask queue: hier landen promise callbacks, alles was nach .then, catch oder await passiert
+Microtasks haben im CallStack vorrang
+await pausiert nur die eine async-Funktion, nicht das ganze Programm. Und alles, was nach einem await kommt, läuft als Microtask
+Promise.allSettled() selbst ist ein Promise. Der Code nach dieser Zeile (die Filterung, das DOM-Update) wird erst als Microtask ausgeführt, sobald alle bearPromises fertig sind
+(egal ob erfolgreich oder fehlgeschlagen). Bis dahin läuft der Rest deines Programms (z. B. andere Event-Listener) ungehindert weiter.
+Eine normale Funktion (function() {}) bekommt ihr eigenes this, das davon abhängt, wie sie aufgerufen wird. Eine Arrow Function (() → {}) hat kein eigenes this — sie "erbt" das this aus dem umgebenden Scope
+
 Theory question: Select one of your refactorings and explain how JavaScript scope, closures, references, or prototypes caused the original risk. State how you verified that your refactoring preserved behavior.
