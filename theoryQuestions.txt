@@ -19,7 +19,16 @@ weswegen ich mich für direkte Eventlistener entschieden habe, was den Code für
 
 Theory question: How do synchronous exceptions and rejected promises travel through this application? Explain where errors should be caught and why catching every error at its source can make failures harder to diagnose.
 Synchrone Fehler springen sofort den Call stack hoch, bis sie von try/catch gefangen werden. Rejected Promises hingegen reisen durch die gesamte .then-Kette, überspringen alle .then blöcke und werden erst vom nächsten catch aufgefangen
-Loadbears ist ein gutes bsp.:
+Loadbears ist ein gutes bsp
+am besten werden fehler in einer zentralen Fehlerbehandlung weitergegeben, dort wird er geloggt, dem user gescheit bescheid gegeben, einen passenden http status angegeben
+und entschieden ob die anwendung weitermachen kann
+
+AI:
+Synchrone Exceptions werden mit throw ausgelöst und können über den Call Stack nach oben weitergegeben werden.
+Bei asynchronem Code führt ein Fehler normalerweise zu einem rejected Promise, das mit await/try-catch oder .catch() behandelt werden kann.
+Fehler sollten möglichst dort gefangen werden, wo man sinnvoll auf sie reagieren kann, zum Beispiel in einer zentralen Fehlerbehandlung.
+Wenn man jeden Fehler direkt an seiner Quelle abfängt, kann man Fehler verschlucken oder wichtige Informationen verlieren.
+Dadurch wird die Fehlersuche schwieriger.
 
 Theory question: Explain the relationship between async/await, promises, the microtask queue, and the browser event loop. Also explain why an arrow function is not always an interchangeable replacement for a regular function, particularly regarding this.
 JavaScript kann nur eine Sache gleichzeitig tun. Damit fetch() zb die Seite nicht einfrieren gibt es mehrere Warteschlangen.
@@ -30,4 +39,10 @@ Promise.allSettled() selbst ist ein Promise. Der Code nach dieser Zeile (die Fil
 (egal ob erfolgreich oder fehlgeschlagen). Bis dahin läuft der Rest deines Programms (z. B. andere Event-Listener) ungehindert weiter.
 Eine normale Funktion (function() {}) bekommt ihr eigenes this, das davon abhängt, wie sie aufgerufen wird. Eine Arrow Function (() → {}) hat kein eigenes this — sie "erbt" das this aus dem umgebenden Scope
 
+AI:
+async/await arbeitet mit Promises; wenn ein Promise fertig ist, wird die Fortsetzung typischerweise als Microtask eingeplant, die vom Event Loop ausgeführt wird.
+Arrow Functions unterscheiden sich von normalen Funktionen vor allem dadurch, dass sie kein eigenes this besitzen.
+
 Theory question: Select one of your refactorings and explain how JavaScript scope, closures, references, or prototypes caused the original risk. State how you verified that your refactoring preserved behavior.
+Even more seperation of concerns → testbarkeit erhöhen für spätere mögliche tests, eine funktion soll nur eine sache tun
+Variablenumbenennung
