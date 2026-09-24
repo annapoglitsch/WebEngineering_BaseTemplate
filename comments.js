@@ -1,6 +1,4 @@
-/* Show/hide comments toggle
-ES module -> wrap code with function and use export indicator
-*/
+
 export function setupShowHideToggle() {
     const showHideBtn = document.querySelector('.show-hide'); //var zu const
     const commentWrapper = document.querySelector('.comment-wrapper');
