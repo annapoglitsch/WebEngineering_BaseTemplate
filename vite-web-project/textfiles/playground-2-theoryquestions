@@ -1,0 +1,14 @@
+Theory question: Distinguish source, build, distribution, and deployment.
+What does your build tool do in development and in a production build, and why is the lockfile important for reproducibility?
+
+TypeScript uses structural typing and erases types during compilation.
+Explain both concepts and why a compile-time type alone cannot guarantee the shape of a Wikipedia API response at runtime.
+
+Theory question: What different problems do a linter, a formatter, and the TypeScript compiler detect? Give one concrete example for each from this project.
+
+Why are stable, composable commands such as these useful as an interface for developers and CI?
+Explain idempotence and identify which of your scripts should be idempotent.
+
+Compare a local pre-commit hook with a CI quality gate.
+Why is CI still necessary when hooks are configured, and why should CI use non-mutating checks rather than automatically rewriting source files?
+
