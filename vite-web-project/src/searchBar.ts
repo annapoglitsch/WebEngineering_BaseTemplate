@@ -3,9 +3,11 @@
 function clearHighlights(): void {
   document.querySelectorAll<HTMLElement>('.highlight').forEach((el) => {
     const parent = el.parentNode;
-    if (!parent) {
+
+    if (parent === null) {
       return;
     }
+
     parent.replaceChild(document.createTextNode(el.textContent ?? ''), el);
     parent.normalize();
   });
@@ -16,12 +18,15 @@ function highlightMatches(root: Node, regex: RegExp): void {
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.nodeValue ?? '';
       const match = text.match(regex);
-      if (match) {
+
+      if (match !== null) {
         const span = document.createElement('span');
+
         span.innerHTML = text.replace(
           regex,
           '<mark class="highlight">$1</mark>'
         );
+
         node.replaceWith(...Array.from(span.childNodes));
       }
     } else if (
@@ -36,12 +41,12 @@ function highlightMatches(root: Node, regex: RegExp): void {
 export function searchHighlighter(): void {
   const searchForm = document.querySelector<HTMLFormElement>('.search');
 
-  if (!searchForm) {
+  if (searchForm === null) {
     console.error('Search form not found.');
     return;
   }
 
-  searchForm.addEventListener('submit', (event: SubmitEvent) => {
+  searchForm.addEventListener('submit', (event: SubmitEvent): void => {
     event.preventDefault();
 
     clearHighlights();
@@ -49,16 +54,18 @@ export function searchHighlighter(): void {
     const searchInput =
       searchForm.querySelector<HTMLInputElement>('[name="q"]');
 
-    if (!searchInput) {
+    if (searchInput === null) {
       console.error('Search input not found.');
       return;
     }
+
     const searchKey = searchInput.value.trim();
 
-    if (!searchKey) {
+    if (searchKey === '') {
       console.warn('Search input is empty.');
       return;
     }
+
     const escapedSearchKey = searchKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     const regex = new RegExp(`(${escapedSearchKey})`, 'gi');

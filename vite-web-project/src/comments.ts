@@ -3,7 +3,7 @@ export function setupShowHideToggle(): void {
   const commentWrapper =
     document.querySelector<HTMLElement>('.comment-wrapper');
 
-  if (!showHideBtn || !commentWrapper) {
+  if (showHideBtn === null || commentWrapper === null) {
     console.error('Comment toggle elements not found.');
     return;
   }
@@ -13,8 +13,9 @@ export function setupShowHideToggle(): void {
   showHideBtn.addEventListener('click', (): void => {
     const isHidden: boolean | 'until-found' = commentWrapper.hidden;
 
-    commentWrapper.hidden = !isHidden;
-    showHideBtn.textContent = isHidden ? 'Hide comment' : 'Show comment';
+    commentWrapper.hidden = isHidden === true;
+    showHideBtn.textContent =
+      isHidden === true ? 'Hide comment' : 'Show comment';
   });
 }
 
@@ -25,7 +26,12 @@ export function setupCommentForm(): void {
   const commentField = document.querySelector<HTMLTextAreaElement>('#comment');
   const list = document.querySelector<HTMLUListElement>('.comment-container');
 
-  if (!form || !nameField || !commentField || !list) {
+  if (
+    form === null ||
+    nameField === null ||
+    commentField === null ||
+    list === null
+  ) {
     console.error('Comment form elements not found.');
     return;
   }
@@ -36,7 +42,7 @@ export function setupCommentForm(): void {
     const nameValue: string = nameField.value.trim();
     const commentValue: string = commentField.value.trim();
 
-    if (!nameValue || !commentValue) {
+    if (nameValue === '' || commentValue === '') {
       return;
     }
 

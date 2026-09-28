@@ -1,5 +1,4 @@
 // Fetching bear data
-// Fetching bear data
 
 const baseUrl = 'https://en.wikipedia.org/w/api.php';
 const title = 'List_of_ursids';
@@ -16,6 +15,14 @@ interface WikipediaPage {
 interface WikipediaImageResponse {
   query?: {
     pages?: Record<string, WikipediaPage>;
+  };
+}
+
+interface WikipediaParseResponse {
+  parse?: {
+    wikitext?: {
+      '*': string;
+    };
   };
 }
 
@@ -57,6 +64,31 @@ function isWikipediaImageResponse(
 
   return true;
 }
+
+function isWikipediaParseResponse(
+  value: unknown
+): value is WikipediaParseResponse {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const data = value as Record<string, unknown>;
+
+  if (typeof data.parse !== 'object' || data.parse === null) {
+    return false;
+  }
+
+  const parse = data.parse as Record<string, unknown>;
+
+  if (typeof parse.wikitext !== 'object' || parse.wikitext === null) {
+    return false;
+  }
+
+  const wikitext = parse.wikitext as Record<string, unknown>;
+
+  return typeof wikitext['*'] === 'string';
+}
+
 export async function fetchImageUrl(fileName: string): Promise<string> {
   const imageParams = {
     action: 'query',
@@ -66,29 +98,41 @@ export async function fetchImageUrl(fileName: string): Promise<string> {
     format: 'json',
     origin: '*',
   };
+
   const url = baseUrl + '?' + new URLSearchParams(imageParams).toString();
   const res = await fetch(url);
+
   if (!res.ok) {
     throw new Error('HTTP error: ' + res.status);
   }
+
   const data: unknown = await res.json();
+
   if (!isWikipediaImageResponse(data)) {
     throw new Error('Ungültige Antwort von Wikipedia');
   }
+
   const pages = data.query?.pages;
-  if (!pages) {
+
+  if (pages === undefined || pages === null) {
     throw new Error('Ungültige Antwort von Wikipedia: keine pages');
   }
+
   const page = Object.values(pages)[0];
-  if (!page) {
+
+  if (page === undefined) {
     console.warn('keine Seite gefunden für:', fileName);
     return 'media/noImageFound.jpg';
   }
-  if (!page.imageinfo?.[0]) {
+
+  const imageInfo = page.imageinfo;
+
+  if (imageInfo === undefined || imageInfo.length === 0) {
     console.warn('kein Bild gefunden für:', fileName);
     return 'media/noImageFound.jpg';
   }
-  return page.imageinfo[0].url;
+
+  return imageInfo[0].url;
 }
 
 export function extractBears(wikitext: string): Bear[] {
@@ -96,7 +140,7 @@ export function extractBears(wikitext: string): Bear[] {
     .split('{{Species table/row')
     .slice(1)
     .map(parseBearRow)
-    .filter((bear) => bear !== null);
+    .filter((bear): bear is Bear => bear !== null);
 }
 
 export function parseBearRow(row: string): Bear | null {
@@ -104,11 +148,11 @@ export function parseBearRow(row: string): Bear | null {
   const binomialMatch = row.match(/\|binomial=(.*?)(?:\n|\|)/);
   const imageMatch = row.match(/\|image=(.*?)(?:\n|\|)/);
 
-  if (!nameMatch || !binomialMatch || !imageMatch) {
-    // unvollständige Daten -> mag ich halt nicht
+  if (nameMatch === null || binomialMatch === null || imageMatch === null) {
     console.warn('unvollständiger bären-datensatz:', row);
     return null;
   }
+
   return {
     name: nameMatch[1],
     binomial: binomialMatch[1],
@@ -117,8 +161,9 @@ export function parseBearRow(row: string): Bear | null {
   };
 }
 
-export async function enrichBearWithImage(bear: Bear) {
+export async function enrichBearWithImage(bear: Bear): Promise<Bear> {
   const image = await fetchImageUrl(bear.fileName);
+
   return {
     name: bear.name,
     binomial: bear.binomial,
@@ -128,23 +173,30 @@ export async function enrichBearWithImage(bear: Bear) {
   };
 }
 
-function bearToHtml(bear: Bear) {
+function bearToHtml(bear: Bear): string {
   return `
-        <div class="bear">
-            <img src="${bear.image}" alt="Image of ${bear.name}" style="width:200px; height:auto;">
-            <p><b>${bear.name}</b> (${bear.binomial})</p>
-            <p>Range: ${bear.range ?? 'Unknown'}</p>
-        </div>`;
+<div class="bear">
+<img src="${bear.image}" alt="Image of ${bear.name}" style="width:200px; height:auto;">
+    <p><b>${bear.name}</b> (${bear.binomial})</p>
+<p>Range: ${bear.range ?? 'Unknown'}</p>
+</div>`;
 }
 
-export async function insertBearsInDOM(bearPromises: Array<Promise<Bear>>) {
+export async function insertBearsInDOM(
+  bearPromises: Array<Promise<Bear>>
+): Promise<void> {
   const results = await Promise.allSettled(bearPromises);
+
   const bears = results
-    .filter((r) => r.status === 'fulfilled')
-    .map((r) => r.value);
+    .filter(
+      (result): result is PromiseFulfilledResult<Bear> =>
+        result.status === 'fulfilled'
+    )
+    .map((result) => result.value);
+
   const moreBears = document.querySelector('.more-bears');
 
-  if (!moreBears) {
+  if (moreBears === null) {
     console.error('element mit klasse "more-bears" nicht gefunden.');
     return;
   }
@@ -152,15 +204,31 @@ export async function insertBearsInDOM(bearPromises: Array<Promise<Bear>>) {
   moreBears.insertAdjacentHTML('beforeend', bears.map(bearToHtml).join(''));
 }
 
-export async function loadBears() {
+export async function loadBears(): Promise<void> {
   try {
     const res = await fetch(
       baseUrl + '?' + new URLSearchParams(params).toString()
     );
-    const data = await res.json();
 
-    const bears = extractBears(data.parse.wikitext['*']);
+    if (!res.ok) {
+      throw new Error('HTTP error: ' + res.status);
+    }
+
+    const data: unknown = await res.json();
+
+    if (!isWikipediaParseResponse(data)) {
+      throw new Error('Ungültige Antwort von Wikipedia');
+    }
+
+    const wikitext = data.parse?.wikitext?.['*'];
+
+    if (wikitext === undefined) {
+      throw new Error('Wikipedia-Antwort enthält keinen Wikitext');
+    }
+
+    const bears = extractBears(wikitext);
     const enrichedBearPromises = bears.map(enrichBearWithImage);
+
     await insertBearsInDOM(enrichedBearPromises);
   } catch (err) {
     console.error('fehler beim Laden der bärendaten:', err);
