@@ -50,7 +50,10 @@ function isWikipediaParseResponse(
     return data.parse !== undefined;
 }
 
-export async function fetchImageUrl(fileName: string): Promise<string> {
+export async function fetchImageUrl(
+    fileName: string,
+    signal?: AbortSignal,
+): Promise<string> {
     const params = new URLSearchParams({
         action: 'query',
         format: 'json',
@@ -60,7 +63,10 @@ export async function fetchImageUrl(fileName: string): Promise<string> {
         origin: '*',
     });
 
-    const response = await fetch(`${baseUrl}?${params.toString()}`);
+    const response = await fetch(
+        `${baseUrl}?${params.toString()}`,
+        { signal },
+    );
 
     if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
@@ -112,14 +118,16 @@ export function parseBearRow(row: string): Bear | null {
     }
 
     return {
-        name: nameMatch[1],
+        name: nameMatch[1].trim(),
         binomial: binomialMatch[1].trim(),
         fileName: imageMatch[1].trim().replace('File:', ''),
         range: rangeMatch?.[1]?.trim() ?? null,
     };
 }
 
-export async function fetchBears(): Promise<Bear[]> {
+export async function fetchBears(
+    signal?: AbortSignal,
+): Promise<Bear[]> {
     const params = new URLSearchParams({
         action: 'parse',
         page: title,
@@ -129,7 +137,10 @@ export async function fetchBears(): Promise<Bear[]> {
         origin: '*',
     });
 
-    const response = await fetch(`${baseUrl}?${params.toString()}`);
+    const response = await fetch(
+        `${baseUrl}?${params.toString()}`,
+        { signal },
+    );
 
     if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
