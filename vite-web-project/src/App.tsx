@@ -5,121 +5,124 @@ import { SearchForm } from './components/search/SearchForm';
 import { BearSection } from './components/bear/BearSection';
 import { CommentSection } from './components/comments/CommentSection';
 import { BearDetails } from './components/bear/BearDetail';
-import {highlightText} from "./components/search/HighlightText.tsx";
+import { highlightText } from './components/search/HighlightText.tsx';
 
 function App(): JSX.Element {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [path, setPath] = useState(window.location.pathname);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [path, setPath] = useState(window.location.pathname);
 
-    useEffect(() => {
-        const handlePopState = () => {
-            setPath(window.location.pathname);
-        };
+  useEffect(() => {
+    const handlePopState = (): void => {
+      setPath(window.location.pathname);
+    };
 
-        window.addEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handlePopState);
 
-        return () => {
-            window.removeEventListener('popstate', handlePopState);
-        };
-    }, []);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  const params = new URLSearchParams(window.location.search);
+  const urlSearchTerm = params.get('search') ?? '';
+
+  function handleSearch(value: string): void {
+    setSearchTerm(value);
 
     const params = new URLSearchParams(window.location.search);
-    const urlSearchTerm = params.get('search') ?? '';
 
-    function handleSearch(value: string) {
-        setSearchTerm(value);
-
-        const params = new URLSearchParams(window.location.search);
-
-        if (value) {
-            params.set('search', value);
-        } else {
-            params.delete('search');
-        }
-
-        const query = params.toString();
-
-        window.history.pushState(
-            {},
-            '',
-            `${window.location.pathname}${query ? `?${query}` : ''}`,
-        );
-
-        setPath(window.location.pathname);
+    if (value !== '') {
+      params.set('search', value);
+    } else {
+      params.delete('search');
     }
 
-    if (path === '/bears') {
-        return (
-            <>
-                <a href="/">← Back to Home</a>
-                <h1>Our Bears</h1>
+    const query = params.toString();
 
-                <SearchForm onSearch={handleSearch} />
+    window.history.pushState(
+      {},
+      '',
+      `${window.location.pathname}${query !== '' ? `?${query}` : ''}`
+    );
 
-                <BearSection
-                    searchTerm={urlSearchTerm || searchTerm}
-                />
-            </>
-        );
-    }
+    setPath(window.location.pathname);
+  }
 
-    if (path.startsWith('/bears/')) {
-        const id = decodeURIComponent(
-            path.substring('/bears/'.length),
-        );
-
-        return (
-            <>
-                <h1>Bear Details</h1>
-
-                <BearDetails bearId={id} />
-            </>
-        );
-    }
+  if (path === '/bears') {
     return (
       <>
-        <header>
-          <h1>Welcome to our wildlife website</h1>
-        </header>
+        <a href="/">← Back to Home</a>
+        <h1>Our Bears</h1>
 
-        <nav>
-          <ul>
-            <li>
-              <a href="#">Home</a>
-            </li>
-            <li>
-              <a href="#">Our team</a>
-            </li>
-            <li>
-              <a href="#">Projects</a>
-            </li>
-            <li>
-              <a href="#">Blog</a>
-            </li>
-          </ul>
+        <SearchForm onSearch={handleSearch} />
 
-          <SearchForm onSearch={setSearchTerm} />
-        </nav>
+        <BearSection
+          searchTerm={urlSearchTerm !== '' ? urlSearchTerm : searchTerm}
+        />
+      </>
+    );
+  }
 
-        <main>
-          <article>
-            <h2>{highlightText('The trouble with Bears', searchTerm)}</h2>
+  if (path.startsWith('/bears/')) {
+    const id = decodeURIComponent(path.substring('/bears/'.length));
 
-            <p>{highlightText('By Evan Wild', searchTerm)}</p>
+    return (
+      <>
+        <h1>Bear Details</h1>
 
-            <p>
-              {highlightText('Tall, lumbering, angry, dangerous. The real live bears of this\n' +
-                  '              world are proud, independent creatures, self-serving and always\n' +
-                  '              on the hunt for food.', searchTerm)}
+        <BearDetails bearId={id} />
+      </>
+    );
+  }
 
-            </p>
+  return (
+    <>
+      <header>
+        <h1>Welcome to our wildlife website</h1>
+      </header>
 
-            <h2>{highlightText('Types of bear', searchTerm)}</h2>
+      <nav>
+        <ul>
+          <li>
+            <a href="#">Home</a>
+          </li>
+          <li>
+            <a href="#">Our team</a>
+          </li>
+          <li>
+            <a href="#">Projects</a>
+          </li>
+          <li>
+            <a href="#">Blog</a>
+          </li>
+        </ul>
 
-            <table>
-              <caption>{highlightText('Comparison of Bear Types', searchTerm)}</caption>
+        <SearchForm onSearch={setSearchTerm} />
+      </nav>
 
-              <thead>
+      <main>
+        <article>
+          <h2>{highlightText('The trouble with Bears', searchTerm)}</h2>
+
+          <p>{highlightText('By Evan Wild', searchTerm)}</p>
+
+          <p>
+            {highlightText(
+              'Tall, lumbering, angry, dangerous. The real live bears of this\n' +
+                '              world are proud, independent creatures, self-serving and always\n' +
+                '              on the hunt for food.',
+              searchTerm
+            )}
+          </p>
+
+          <h2>{highlightText('Types of bear', searchTerm)}</h2>
+
+          <table>
+            <caption>
+              {highlightText('Comparison of Bear Types', searchTerm)}
+            </caption>
+
+            <thead>
               <tr>
                 <th>{highlightText('Bear Type', searchTerm)}</th>
                 <th>{highlightText('Coat', searchTerm)}</th>
@@ -128,9 +131,9 @@ function App(): JSX.Element {
                 <th>{highlightText('Lifespan', searchTerm)}</th>
                 <th>{highlightText('Diet', searchTerm)}</th>
               </tr>
-              </thead>
+            </thead>
 
-              <tbody>
+            <tbody>
               <tr>
                 <td>{highlightText('Wild', searchTerm)}</td>
                 <td>{highlightText('Brown or black', searchTerm)}</td>
@@ -148,77 +151,92 @@ function App(): JSX.Element {
                 <td>{highlightText('20 to 32 years', searchTerm)}</td>
                 <td>{highlightText('Starbucks, sushi', searchTerm)}</td>
               </tr>
-              </tbody>
-            </table>
+            </tbody>
+          </table>
 
-            <h2>{highlightText('Habitats and Eating habits', searchTerm)}</h2>
+          <h2>{highlightText('Habitats and Eating habits', searchTerm)}</h2>
 
+          <p>
+            {highlightText(
+              'Wild bears eat a variety of meat, fish, fruit, nuts, and other\n' +
+                '              naturally growing ingredients...',
+              searchTerm
+            )}
+          </p>
+
+          <img src="/media/wild-bear.jpg" alt="Wild bear in forest" />
+
+          <p>
+            {highlightText(
+              'Urban (gentrified) bears on the other hand have largely abandoned\n' +
+                '              the old ways...',
+              searchTerm
+            )}
+          </p>
+
+          <img src="/media/urban-bear.jpg" alt="Urban bear near buildings" />
+
+          <h2>{highlightText('Mating rituals', searchTerm)}</h2>
+
+          <p>
+            {highlightText(
+              'Bears are romantic creatures by nature...',
+              searchTerm
+            )}
+          </p>
+
+          <audio controls>
+            <source src="../public/media/bear.mp3" type="audio/mpeg" />
+            <source src="/media/bear.ogg" type="audio/ogg" />
             <p>
-              {highlightText('Wild bears eat a variety of meat, fish, fruit, nuts, and other\n' +
-                  '              naturally growing ingredients...', searchTerm)}
-
+              {highlightText(
+                "It looks like your browser doesn't support HTML5 audio players.",
+                searchTerm
+              )}
             </p>
+          </audio>
 
-            <img src="/media/wild-bear.jpg" alt="Wild bear in forest" />
-
+          <aside>
+            <h2>{highlightText('About the author', searchTerm)}</h2>
             <p>
-              {highlightText('Urban (gentrified) bears on the other hand have largely abandoned\n' +
-                  '              the old ways...', searchTerm)}
-
+              {highlightText(
+                'Evan Wild is an unemployed plumber from Doncaster...',
+                searchTerm
+              )}
             </p>
+          </aside>
 
-            <img src="/media/urban-bear.jpg" alt="Urban bear near buildings" />
+          <CommentSection searchTerm={searchTerm} />
+          <BearSection searchTerm={searchTerm} />
+        </article>
 
-            <h2>{highlightText('Mating rituals', searchTerm)}</h2>
+        <div className="secondary">
+          <h2>Related</h2>
 
-            <p>{highlightText('Bears are romantic creatures by nature...', searchTerm)}</p>
+          <ul>
+            <li>
+              <a href="#">The trouble with Bees</a>
+            </li>
+            <li>
+              <a href="#">The trouble with Otters</a>
+            </li>
+            <li>
+              <a href="#">The trouble with Penguins</a>
+            </li>
+            <li>
+              <a href="#">The trouble with Octopi</a>
+            </li>
+            <li>
+              <a href="#">The trouble with Lemurs</a>
+            </li>
+          </ul>
+        </div>
+      </main>
 
-            <audio controls>
-              <source src="../public/media/bear.mp3" type="audio/mpeg" />
-              <source src="/media/bear.ogg" type="audio/ogg" />
-              <p>
-                {highlightText('It looks like your browser doesn\'t support HTML5 audio players.', searchTerm)}
-              </p>
-            </audio>
-
-            <aside>
-              <h2>{highlightText('About the author', searchTerm)}</h2>
-              <p>
-                {highlightText('Evan Wild is an unemployed plumber from Doncaster...', searchTerm)}
-              </p>
-            </aside>
-            <CommentSection searchTerm={searchTerm} />
-            <BearSection searchTerm={searchTerm} />
-
-          </article>
-
-          <div className="secondary">
-            <h2>Related</h2>
-
-            <ul>
-              <li>
-                <a href="#">The trouble with Bees</a>
-              </li>
-              <li>
-                <a href="#">The trouble with Otters</a>
-              </li>
-              <li>
-                <a href="#">The trouble with Penguins</a>
-              </li>
-              <li>
-                <a href="#">The trouble with Octopi</a>
-              </li>
-              <li>
-                <a href="#">The trouble with Lemurs</a>
-              </li>
-            </ul>
-          </div>
-        </main>
-
-        <footer>
-          <p>©Copyright 2050 by nobody. All rights reversed.</p>
-        </footer>
-      </>
+      <footer>
+        <p>©Copyright 2050 by nobody. All rights reversed.</p>
+      </footer>
+    </>
   );
 }
 

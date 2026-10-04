@@ -1,124 +1,118 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
+import type { JSX } from 'react';
 
-import type {Bear} from './types';
-import {fetchBears, fetchImageUrl} from './wikipedia';
-import {BearList} from './BearList';
-import {highlightText} from '../search/HighlightText';
+import type { Bear } from './types';
+import { fetchBears, fetchImageUrl } from './wikipedia';
+import { BearList } from './BearList';
+import { highlightText } from '../search/HighlightText';
 
-type BearSectionProps = {
-    searchTerm: string;
-};
-
-type BearStatus =
-    | { status: 'loading' }
-    | { status: 'success'; bears: Bear[] }
-    | { status: 'empty' }
-    | { status: 'error'; message: string };
-
-function isValidBear(bear: Bear): boolean {
-    return (
-        typeof bear.name === 'string' &&
-        bear.name.trim() !== '' &&
-        typeof bear.binomial === 'string' &&
-        bear.binomial.trim() !== '' &&
-        typeof bear.fileName === 'string' &&
-        bear.fileName.trim() !== ''
-    );
+interface BearSectionProps {
+  searchTerm: string;
 }
 
-export function BearSection({searchTerm}: BearSectionProps) {
-    const [state, setState] = useState<BearStatus>({
-        status: 'loading',
-    });
+type BearStatus =
+  | { status: 'loading' }
+  | { status: 'success'; bears: Bear[] }
+  | { status: 'empty' }
+  | { status: 'error'; message: string };
 
-    useEffect(() => {
-        const controller = new AbortController();
+function isValidBear(bear: Bear): boolean {
+  return (
+    typeof bear.name === 'string' &&
+    bear.name.trim() !== '' &&
+    typeof bear.binomial === 'string' &&
+    bear.binomial.trim() !== '' &&
+    typeof bear.fileName === 'string' &&
+    bear.fileName.trim() !== ''
+  );
+}
 
-        async function loadBears(): Promise<void> {
-            setState({status: 'loading'});
+export function BearSection({ searchTerm }: BearSectionProps): JSX.Element {
+  const [state, setState] = useState<BearStatus>({
+    status: 'loading',
+  });
 
-            try {
-                const loadedBears = await fetchBears(controller.signal);
+  useEffect(() => {
+    const controller = new AbortController();
 
-                const validBears = loadedBears.filter(isValidBear);
+    async function loadBears(): Promise<void> {
+      setState({ status: 'loading' });
 
-                if (validBears.length === 0) {
-                    setState({status: 'empty'});
-                    return;
-                }
+      try {
+        const loadedBears = await fetchBears(controller.signal);
 
-                const enrichedBears = await Promise.all(
-                    validBears.map(async (bear): Promise<Bear> => {
-                        try {
-                            const image = await fetchImageUrl(
-                                bear.fileName,
-                                controller.signal,
-                            );
+        const validBears = loadedBears.filter(isValidBear);
 
-                            return {
-                                ...bear,
-                                image,
-                            };
-                        } catch (error) {
-                            if (controller.signal.aborted) {
-                                throw error;
-                            }
-
-                            // Keep the bear even if its image cannot be loaded.
-                            return bear;
-                        }
-                    }),
-                );
-
-                if (controller.signal.aborted) {
-                    return;
-                }
-
-                setState({
-                    status: 'success',
-                    bears: enrichedBears,
-                });
-            } catch (error) {
-                if (controller.signal.aborted) {
-                    return;
-                }
-
-                setState({
-                    status: 'error',
-                    message: 'Fehler beim Laden der Bärendaten.',
-                });
-            }
+        if (validBears.length === 0) {
+          setState({ status: 'empty' });
+          return;
         }
 
-        void loadBears();
+        const enrichedBears = await Promise.all(
+          validBears.map(async (bear): Promise<Bear> => {
+            try {
+              const image = await fetchImageUrl(
+                bear.fileName,
+                controller.signal
+              );
 
-        return () => {
-            controller.abort();
-        };
-    }, []);
+              return {
+                ...bear,
+                image,
+              };
+            } catch (error) {
+              if (controller.signal.aborted) {
+                throw error;
+              }
 
-    return (
-        <section className="more-bears">
-            <h2>{highlightText('More Bears', searchTerm)}</h2>
+              // Keep the bear even if its image cannot be loaded.
+              return bear;
+            }
+          })
+        );
 
-            {state.status === 'loading' && (
-                <p>{highlightText('Loading bears...', searchTerm)}</p>
-            )}
+        if (controller.signal.aborted) {
+          return;
+        }
 
-            {state.status === 'error' && (
-                <p>{state.message}</p>
-            )}
+        setState({
+          status: 'success',
+          bears: enrichedBears,
+        });
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
 
-            {state.status === 'empty' && (
-                <p>No bears found.</p>
-            )}
+        setState({
+          status: 'error',
+          message: 'Fehler beim Laden der Bärendaten.',
+        });
+      }
+    }
 
-            {state.status === 'success' && (
-                <BearList
-                    bears={state.bears}
-                    searchTerm={searchTerm}
-                />
-            )}
-        </section>
-    );
+    void loadBears();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  return (
+    <section className="more-bears">
+      <h2>{highlightText('More Bears', searchTerm)}</h2>
+
+      {state.status === 'loading' && (
+        <p>{highlightText('Loading bears...', searchTerm)}</p>
+      )}
+
+      {state.status === 'error' && <p>{state.message}</p>}
+
+      {state.status === 'empty' && <p>No bears found.</p>}
+
+      {state.status === 'success' && (
+        <BearList bears={state.bears} searchTerm={searchTerm} />
+      )}
+    </section>
+  );
 }
