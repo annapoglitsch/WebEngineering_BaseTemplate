@@ -11,7 +11,7 @@ export function BearList({ bears, searchTerm }: BearListProps) {
         <div className="bear-list">
             {bears.map((bear) => (
                 <BearCard
-                    key={bear.name}
+                    key={bear.id}
                     bear={bear}
                     searchTerm={searchTerm}
                 />

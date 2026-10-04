@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
-import type { Bear } from './types';
-import { fetchBears, fetchImageUrl } from './wikipedia';
-import { BearList } from './BearList';
-import { highlightText } from '../search/HighlightText';
+import type {Bear} from './types';
+import {fetchBears, fetchImageUrl} from './wikipedia';
+import {BearList} from './BearList';
+import {highlightText} from '../search/HighlightText';
 
 type BearSectionProps = {
     searchTerm: string;
@@ -26,7 +26,7 @@ function isValidBear(bear: Bear): boolean {
     );
 }
 
-export function BearSection({ searchTerm }: BearSectionProps) {
+export function BearSection({searchTerm}: BearSectionProps) {
     const [state, setState] = useState<BearStatus>({
         status: 'loading',
     });
@@ -35,7 +35,7 @@ export function BearSection({ searchTerm }: BearSectionProps) {
         const controller = new AbortController();
 
         async function loadBears(): Promise<void> {
-            setState({ status: 'loading' });
+            setState({status: 'loading'});
 
             try {
                 const loadedBears = await fetchBears(controller.signal);
@@ -43,7 +43,7 @@ export function BearSection({ searchTerm }: BearSectionProps) {
                 const validBears = loadedBears.filter(isValidBear);
 
                 if (validBears.length === 0) {
-                    setState({ status: 'empty' });
+                    setState({status: 'empty'});
                     return;
                 }
 

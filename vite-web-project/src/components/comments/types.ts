@@ -1,5 +1,5 @@
-export type Comment = {
-    id: string;
-    name: string;
-    text: string;
-};
+export interface Comment {
+  id: string;
+  name: string;
+  text: string;
+}

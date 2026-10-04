@@ -1,14 +1,82 @@
-import { type JSX, useState } from 'react';
+import { type JSX, useEffect, useState } from 'react';
 import './App.css';
 
 import { SearchForm } from './components/search/SearchForm';
 import { BearSection } from './components/bear/BearSection';
 import { CommentSection } from './components/comments/CommentSection';
-import { highlightText } from './components/search/HighlightText';
+import { BearDetails } from './components/bear/BearDetail';
+import {highlightText} from "./components/search/HighlightText.tsx";
 
 function App(): JSX.Element {
-  const [searchTerm, setSearchTerm] = useState('');
-  return (
+    const [searchTerm, setSearchTerm] = useState('');
+    const [path, setPath] = useState(window.location.pathname);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            setPath(window.location.pathname);
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, []);
+
+    const params = new URLSearchParams(window.location.search);
+    const urlSearchTerm = params.get('search') ?? '';
+
+    function handleSearch(value: string) {
+        setSearchTerm(value);
+
+        const params = new URLSearchParams(window.location.search);
+
+        if (value) {
+            params.set('search', value);
+        } else {
+            params.delete('search');
+        }
+
+        const query = params.toString();
+
+        window.history.pushState(
+            {},
+            '',
+            `${window.location.pathname}${query ? `?${query}` : ''}`,
+        );
+
+        setPath(window.location.pathname);
+    }
+
+    if (path === '/bears') {
+        return (
+            <>
+                <a href="/">← Back to Home</a>
+                <h1>Our Bears</h1>
+
+                <SearchForm onSearch={handleSearch} />
+
+                <BearSection
+                    searchTerm={urlSearchTerm || searchTerm}
+                />
+            </>
+        );
+    }
+
+    if (path.startsWith('/bears/')) {
+        const id = decodeURIComponent(
+            path.substring('/bears/'.length),
+        );
+
+        return (
+            <>
+                <h1>Bear Details</h1>
+
+                <BearDetails bearId={id} />
+            </>
+        );
+    }
+    return (
       <>
         <header>
           <h1>Welcome to our wildlife website</h1>
