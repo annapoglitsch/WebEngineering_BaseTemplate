@@ -1,0 +1,163 @@
+Theory question: Contrast imperative DOM updates with React's declarative model.
+What happens during React's render, reconciliation, and commit phases, and why should code outside React not modify DOM nodes owned by the React root?
+If you chose not to use React, answer the same questions in the context of your chosen framework.
+
+Imperativ = ich sage, WIE das DOM geändert wird.
+Deklarativ = ich sage, WIE die UI aussehen soll, und React entscheidet, WIE sie geändert wird. (React)
+Render → Reconciliation → Commit
+
+🟢 Render
+
+React nimmt den aktuellen State und die Props und berechnet daraus, wie die UI aussehen soll.
+
+Dabei erstellt React eine neue Beschreibung der UI, den sogenannten Virtual DOM / React Tree.
+
+Beim Rendern wird das echte DOM noch nicht verändert.
+
+🟡 Reconciliation
+
+Jetzt vergleicht React:
+
+„Was war vorher?“
+„Was ist jetzt?“
+
+React sucht also nach den Unterschieden zwischen der alten und der neuen UI-Beschreibung.
+
+🔴 Commit
+
+Jetzt werden die tatsächlich notwendigen Änderungen auf das echte DOM angewendet.
+
+Also beispielsweise:
+
+👉 Sehr einfacher Merksatz:
+
+Render = Was soll die UI sein?
+Reconciliation = Was hat sich geändert?
+Commit = Änderungen ins echte DOM schreiben.
+React sollte die DOM-Nodes innerhalb seines Roots kontrollieren.
+Externer Code sollte sie nicht direkt verändern, weil React sonst nicht mehr weiß, was tatsächlich im DOM steht.
+
+Imperative DOM updates bedeuten, dass ich dem Browser direkt sage, was er am DOM ändern soll, zum Beispiel mit `querySelector` und `textContent`.
+React verwendet dagegen ein deklaratives Modell. Ich beschreibe, wie die UI abhängig von State und Props aussehen soll, und React entscheidet,
+welche DOM-Änderungen notwendig sind.
+
+Bei React gibt es vereinfacht drei wichtige Phasen: Render, Reconciliation und Commit.
+
+Beim Render berechnet React anhand von State und Props, wie die UI aussehen soll. Dabei wird das echte DOM noch nicht verändert.
+
+Bei der Reconciliation vergleicht React die neue UI-Beschreibung mit der vorherigen und findet heraus, was sich geändert hat.
+
+In der Commit-Phase schreibt React dann die notwendigen Änderungen in das echte DOM.
+
+Code außerhalb von React sollte DOM-Nodes, die von einem React-Root kontrolliert werden, nicht direkt verändern.
+React geht davon aus, dass es selbst die Kontrolle über diese Nodes hat. Wenn externer Code das DOM verändert, kann React davon nichts wissen
+und seine Änderungen später wieder überschreiben. Dadurch können unerwartete oder inkonsistente Zustände entstehen.
+
+---------------------------------------------------------------------------------
+
+Theory question: Explain how component boundaries and typed props act as contracts.
+What makes a key stable, why does React need keys during reconciliation, and why is an array index unsuitable when list entries can change order?
+
+Component boundaries trennen Verantwortlichkeiten, und typed props definieren, welche Daten zwischen Komponenten ausgetauscht werden dürfen.
+Zusammen funktionieren sie wie ein Vertrag.
+
+Keys geben Listenelementen eine stabile Identität, damit React bei der Reconciliation erkennen kann,
+welches Element dasselbe geblieben ist, welches gelöscht wurde und welches neu ist.
+
+① Components + Props
+
+Komponenten sind abgegrenzte Einheiten. Typed Props legen fest, welche Daten eine Komponente erwartet. Dadurch entsteht eine Art Vertrag zwischen Komponenten.
+
+② Keys
+
+Keys geben Listenelementen eine stabile Identität. React braucht sie bei der Reconciliation, damit es alte und neue Listenelemente miteinander vergleichen kann.
+
+③ Warum kein Index?
+
+Der Array-Index ist keine stabile Identität, wenn sich die Reihenfolge der Liste ändern kann.
+Dann bekommt ein Element plötzlich einen anderen Key, und React kann Elemente oder ihren State falsch zuordnen.
+
+Component boundaries trennen verschiedene Teile der Anwendung und geben jeder Komponente eine klare Verantwortung.
+Typed props definieren, welche Daten eine Komponente erwartet. Deshalb kann man Component boundaries und typed props als einen Vertrag verstehen:
+Die Komponente sagt, welche Daten sie braucht und in welchem Format.
+
+Keys werden bei Listen verwendet, damit React jedem Element eine stabile Identität geben kann.
+Während der Reconciliation kann React dadurch erkennen, welches Element dasselbe geblieben ist, welches neu ist und welches entfernt wurde.
+
+Ein stabiler Key sollte sich nicht ändern, nur weil sich die Position eines Elements in der Liste ändert.
+Deshalb ist der Array-Index als Key ungeeignet, wenn sich die Reihenfolge der Elemente ändern kann. Wenn sich die Reihenfolge ändert,
+ändern sich auch die Index-Keys. Dadurch kann React Elemente falsch zuordnen und zum Beispiel auch ihren internen State beim falschen Element wiederverwenden.
+
+
+---------------------------------------------------------------------------------
+
+Distinguish props, stored state, and derived values.
+Explain why direct mutation can produce incorrect React behavior and when lifting state is preferable to introducing context.
+
+Props sind Daten, die eine Komponente von außen bekommt. Stored State sind Daten, die React speichern muss, weil sie sich verändern können.
+Derived Values sind dagegen Werte, die ich aus Props oder State berechnen kann und die ich deshalb normalerweise nicht extra als State speichern muss.
+
+Direct mutation bedeutet, dass ich einen bestehenden State-Wert direkt verändere. Das ist problematisch, weil React dadurch Änderungen möglicherweise nicht
+korrekt erkennt und es zu unerwartetem Verhalten kommen kann. Deshalb sollte ich den State nicht direkt verändern, sondern über den
+State-Setter einen neuen Wert erzeugen.
+
+Wenn mehrere nahe beieinanderliegende Komponenten denselben State brauchen, ist Lifting State meistens die bessere Lösung.
+Dabei verschiebe ich den State zum gemeinsamen Parent und gebe ihn über Props weiter.
+Context ist eher sinnvoll, wenn viele Komponenten an verschiedenen oder tiefen Stellen im Komponentenbaum dieselben Daten benötigen und sonst viel
+Prop Drilling entstehen würde.
+
+---------------------------------------------------------------------------------
+
+Theory question: Why is fetching data a synchronization with an external system rather than part of pure rendering?
+Explain how cleanup or cancellation prevents race conditions when a component unmounts or a request becomes irrelevant.
+
+Fetching data is not part of pure rendering because rendering should only calculate the UI from the current props and state.
+Fetching communicates with an external system, such as a server or network, so it is a side effect and needs to be synchronized with the component lifecycle.
+
+Cleanup or cancellation is important because a request can still be running when a component unmounts or when its data is no longer relevant.
+For example, if I start a request for User 1 and then quickly start a request for User 2, the first request might finish after the second one.
+ the old request updates the state, it could overwrite the newer data. This is a race condition.
+
+By cancelling the old request or cleaning it up, I can prevent an outdated request from affecting the current UI.
+
+① Warum ist Fetching nicht Rendering?
+
+Weil:
+
+Rendering sollte eine reine Berechnung von Props und State zur UI sein. Fetching kommuniziert dagegen mit einem externen System, nämlich dem Server/Netzwerk.
+
+② Warum Cleanup?
+
+Weil:
+
+Ein alter Request könnte noch zurückkommen, obwohl er nicht mehr relevant ist. Cleanup bzw. Cancellation verhindert, dass veraltete Requests die UI beeinflussen.
+
+③ Was ist eine Race Condition?
+
+Mehrere Requests laufen gleichzeitig und kommen in einer anderen Reihenfolge zurück als sie gestartet wurden.
+Ein alter Request könnte dadurch einen neueren Zustand überschreiben.
+
+---------------------------------------------------------------------------------
+
+Distinguish client-side rendering, a single-page application, and client-side routing.
+Compare route parameters with query parameters, and describe one benefit and one cost of the SPA architecture used here
+Die Frage möchte eigentlich hören:
+
+Begriff	Einfach erklärt
+CSR	UI wird hauptsächlich im Browser gerendert
+SPA	Eine App mit mehreren Ansichten, ohne vollständigen Seiten-Reload bei jeder Navigation
+Client-Side Routing	Der Client entscheidet anhand der URL, welche Ansicht/Komponente angezeigt wird
+Route Parameter	Teil des Pfades, z. B. /users/42
+Query Parameter	Optionale Informationen nach ?, z. B. ?sort=name
+SPA Vorteil	Flüssige Navigation
+SPA Nachteil	Mehr initiales JavaScript / höherer initialer Load
+
+Client-side rendering means that the UI is mainly rendered in the browser using JavaScript.
+A single-page application is an application that can have multiple views but does not need to load a completely new page from the server for every navigation.
+Client-side routing means that the client application uses the URL to decide which component or view should be displayed.
+
+A route parameter is part of the URL path, for example `/users/42`, where `42` identifies a specific user.
+A query parameter comes after a question mark, for example `/users?sort=name`, and is usually used for filtering, searching, sorting, or other optional settings.
+
+One benefit of a SPA is smooth navigation because the whole page does not have to reload each time.
+One cost is that the browser has to download and execute JavaScript, which can make the initial page load heavier.

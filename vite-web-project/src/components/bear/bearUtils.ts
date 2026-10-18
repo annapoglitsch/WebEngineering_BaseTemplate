@@ -24,7 +24,7 @@ export function parseBearRow(row: string): Bear | null {
     id: fileName,
     name: nameMatch[1].trim(),
     binomial: binomialMatch[1].trim(),
-    fileName,
+    fileName: fileName,
     range: rangeMatch?.[1]?.trim() ?? null,
   };
 }
