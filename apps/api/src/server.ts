@@ -1,0 +1,24 @@
+import Fastify from 'fastify';
+
+const fastify = Fastify({ logger: true });
+
+fastify.get('/health', async () => ({
+  statusCode: 200,
+  status: 'ok',
+  version: '1.0.0',
+  uptime: process.uptime(),
+}));
+
+const start = async (): Promise<void> => {
+  try {
+    await fastify.listen({
+      port: Number(process.env.PORT ?? 3000),
+      host: '0.0.0.0',
+    });
+  } catch (error) {
+    fastify.log.error(error);
+    process.exit(1);
+  }
+};
+
+void start();

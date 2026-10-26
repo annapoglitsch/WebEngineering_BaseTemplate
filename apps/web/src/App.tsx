@@ -5,7 +5,7 @@ import { SearchForm } from './components/search/SearchForm';
 import { BearSection } from './components/bear/BearSection';
 import { CommentSection } from './components/comments/CommentSection';
 import { BearDetails } from './components/bear/BearDetail';
-import { highlightText } from './components/search/HighlightText.tsx';
+import { highlightText } from './components/search/HighlightText';
 
 function App(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,7 +51,7 @@ function App(): JSX.Element {
   if (path === '/bears') {
     return (
       <>
-        <a href="/">← Back to Home</a>
+        <a href="/apps/web/public">← Back to Home</a>
         <h1>Our Bears</h1>
 
         <SearchForm onSearch={handleSearch} />
