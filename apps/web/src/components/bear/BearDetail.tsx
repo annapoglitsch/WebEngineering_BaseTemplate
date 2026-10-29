@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { Bear } from './types';
-import { fetchBears, fetchImageUrl } from './wikipedia';
 
 interface BearDetailsProps {
   bearId: string;
@@ -8,22 +7,44 @@ interface BearDetailsProps {
 
 export function BearDetails({ bearId }: BearDetailsProps): React.JSX.Element {
   const [bear, setBear] = useState<Bear | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadBear(): Promise<void> {
-      const bears = await fetchBears();
-      const foundBear = bears.find((bear) => bear.id === bearId);
+      setBear(null);
+      setError(null);
 
-      if (foundBear === undefined) {
-        return;
+      try {
+        const response = await fetch(
+          `/api/bears/${encodeURIComponent(bearId)}`,
+          { signal: controller.signal }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        const foundBear: Bear = await response.json();
+        setBear(foundBear);
+      } catch (err) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setError('Bear details could not be loaded.');
       }
-
-      const image = await fetchImageUrl(foundBear.fileName);
-      setBear({ ...foundBear, image });
     }
 
     void loadBear();
+
+    return () => controller.abort();
   }, [bearId]);
+
+  if (error !== null) {
+    return <p role="alert">{error}</p>;
+  }
 
   if (bear === null) {
     return <p>Loading bear...</p>;
@@ -32,20 +53,25 @@ export function BearDetails({ bearId }: BearDetailsProps): React.JSX.Element {
   return (
     <section>
       <a href="/bears">← Back to all bears</a>
-      <h2>{bear.name}</h2>{' '}
+      <h2>{bear.name}</h2>
+
       <p>
-        <strong>Scientific name:</strong>
-        {bear.binomial}{' '}
+        <strong>Scientific name:</strong> {bear.binomial}
       </p>
+
       <p>
-        <strong>Range:</strong>
-        {bear.range ?? 'Unknown'}{' '}
+        <strong>Range:</strong> {bear.range ?? 'Unknown'}
       </p>
-      {bear.image !== '' && (
+
+      {bear.image && (
         <img
           src={bear.image}
           alt={`Image of ${bear.name}`}
           style={{ width: '400px', height: 'auto' }}
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = '/media/noImageFound.png';
+          }}
         />
       )}
     </section>

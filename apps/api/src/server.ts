@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import { bearRoutes } from './routes/bears.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -8,6 +9,8 @@ fastify.get('/health', async () => ({
   version: '1.0.0',
   uptime: process.uptime(),
 }));
+
+await fastify.register(bearRoutes);
 
 const start = async (): Promise<void> => {
   try {

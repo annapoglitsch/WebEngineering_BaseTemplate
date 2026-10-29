@@ -17,6 +17,10 @@ export function BearCard({
           src={bear.image}
           alt={`Image of ${bear.name}`}
           style={{ width: '200px', height: 'auto' }}
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = './web/public/media/noImageFound.jpg';
+          }}
         />
       </a>
       <p>

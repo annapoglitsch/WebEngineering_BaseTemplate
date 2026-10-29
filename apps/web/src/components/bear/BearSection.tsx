@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { Bear } from './types';
-import { fetchBears, fetchImageUrl } from './wikipedia';
+import { fetchBears } from './wikipedia';
 import { BearList } from './BearList';
 import { highlightText } from '../search/HighlightText';
 
@@ -48,28 +48,7 @@ export function BearSection({ searchTerm }: BearSectionProps): JSX.Element {
           return;
         }
 
-        const enrichedBears = await Promise.all(
-          validBears.map(async (bear): Promise<Bear> => {
-            try {
-              const image = await fetchImageUrl(
-                bear.fileName,
-                controller.signal
-              );
-
-              return {
-                ...bear,
-                image,
-              };
-            } catch (error) {
-              if (controller.signal.aborted) {
-                throw error;
-              }
-
-              // Keep the bear even if its image cannot be loaded.
-              return bear;
-            }
-          })
-        );
+        const enrichedBears = validBears;
 
         if (controller.signal.aborted) {
           return;

@@ -1,4 +1,3 @@
-
 {
   "name": "@project/api",
   "private": true,
@@ -13,7 +12,8 @@
     "lint:fix": "eslint src --fix"
   },
   "dependencies": {
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
