@@ -1,6 +1,7 @@
 /* || General setup */
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -18,12 +19,18 @@ body {
 
 /* || typography */
 
-h1, h2, fh3 {
+h1,
+h2,
+fh3 {
   font-family: 'Sonsie One', cursive;
   color: #2a2a2a;
 }
 
-p, input, li, table, label {
+p,
+input,
+li,
+table,
+label {
   font-family: 'Open Sans Condensed', sans-serif;
   color: #2a2a2a;
 }
@@ -44,18 +51,25 @@ h3 {
   font-size: 2.2rem;
 }
 
-p, li, table {
+p,
+li,
+table {
   font-size: 1.6rem;
   line-height: 1.5;
 }
 
 /* || header layout */
 
-nav, article, footer, .secondary {
+nav,
+article,
+footer,
+.secondary {
   background-color: green;
 }
 
-article, footer, .secondary {
+article,
+footer,
+.secondary {
   padding: 10px 30px;
 }
 
@@ -105,16 +119,16 @@ nav .search {
   height: 32px;
 }
 
-.search button[type="submit"] {
+.search button[type='submit'] {
   font-size: 1.6rem;
   height: 32px;
 }
 
-.search input[type="search"] {
+.search input[type='search'] {
   flex: 3;
 }
 
-.search input[type="submit"] {
+.search input[type='submit'] {
   flex: 1;
   margin-left: 1rem;
   background: #333;
@@ -148,7 +162,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 10px;
 }
 
@@ -156,7 +171,7 @@ td {
   text-align: center;
 }
 
-th[scope="col"] {
+th[scope='col'] {
   border-bottom: 1px solid black;
 }
 
@@ -166,7 +181,8 @@ tbody tr:nth-child(odd) {
 
 /* styling content images and audio */
 
-img, audio {
+img,
+audio {
   display: block;
   margin: 0 auto;
 }
@@ -216,7 +232,6 @@ audio {
   width: 100%;
 }
 
-
 .show-hide {
   text-align: center;
   width: 150px;
@@ -224,35 +239,41 @@ audio {
   appearance: none;
 }
 
-.comment-form input, .comment-form label, .show-hide {
+.comment-form input,
+.comment-form label,
+.show-hide {
   font-size: 1.6rem;
   line-height: 32px;
 }
 
-.comment-form input, .comment-form label, .comment-form button, .show-hide {
+.comment-form input,
+.comment-form label,
+.comment-form button,
+.show-hide {
   font-size: 1.6rem;
   line-height: 32px;
 }
 
-.comment-form input[type="submit"], .show-hide {
+.comment-form input[type='submit'],
+.show-hide {
   background: #333;
   border: 0;
   color: white;
 }
-.comment-form button[type="submit"], .show-hide {
+.comment-form button[type='submit'],
+.show-hide {
   background: #333;
   border: 0;
   color: white;
 }
 
-
-.comment-form input[type="submit"] {
+.comment-form input[type='submit'] {
   width: 30%;
   display: block;
   margin: 0 auto;
 }
 
-.comment-form button[type="submit"] {
+.comment-form button[type='submit'] {
   width: 30%;
   display: block;
   margin: 0 auto;
