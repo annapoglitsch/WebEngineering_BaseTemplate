@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { fetchBears, fetchBearById } from '../services/bearServices.js';
+import { fetchBears, fetchBearById } from '../services/bearService.js';
 import { UpstreamTimeoutError } from '../errors/upStreamErrors.js';
 
 function upstreamStatus(error: unknown): number {

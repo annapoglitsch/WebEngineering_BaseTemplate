@@ -1,5 +1,6 @@
 export interface Comment {
   id: string;
-  name: string;
+  bearId: string;
+  author: string;
   text: string;
 }

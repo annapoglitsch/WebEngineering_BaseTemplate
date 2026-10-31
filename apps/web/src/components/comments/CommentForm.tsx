@@ -2,14 +2,18 @@ import { useState } from 'react';
 import type { JSX } from 'react';
 
 interface CommentFormProps {
-  onAddComment: (name: string, text: string) => void;
+  onAddComment: (author: string, text: string) => Promise<void>;
 }
 
 export function CommentForm({ onAddComment }: CommentFormProps): JSX.Element {
   const [name, setName] = useState('');
   const [text, setText] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> {
     event.preventDefault();
 
     const trimmedName = name.trim();
@@ -19,10 +23,19 @@ export function CommentForm({ onAddComment }: CommentFormProps): JSX.Element {
       return;
     }
 
-    onAddComment(trimmedName, trimmedText);
+    try {
+      setIsSubmitting(true);
+      setError(null);
 
-    setName('');
-    setText('');
+      await onAddComment(trimmedName, trimmedText);
+
+      setName('');
+      setText('');
+    } catch {
+      setError('Comment could not be created.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -32,21 +45,25 @@ export function CommentForm({ onAddComment }: CommentFormProps): JSX.Element {
         name="name"
         type="text"
         value={name}
-        onChange={(event) => {
-          setName(event.target.value);
-        }}
+        onChange={(event) => setName(event.target.value)}
+        maxLength={50}
+        required
       />
 
       <textarea
         id="comment"
         name="comment"
         value={text}
-        onChange={(event) => {
-          setText(event.target.value);
-        }}
+        onChange={(event) => setText(event.target.value)}
+        maxLength={1000}
+        required
       />
 
-      <button type="submit">Add comment</button>
+      {error && <p role="alert">{error}</p>}
+
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Adding...' : 'Add comment'}
+      </button>
     </form>
   );
 }

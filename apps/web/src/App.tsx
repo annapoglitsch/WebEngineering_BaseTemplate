@@ -71,6 +71,7 @@ function App(): JSX.Element {
         <h1>Bear Details</h1>
 
         <BearDetails bearId={id} />
+        <CommentSection searchTerm={searchTerm} bearId={id} />
       </>
     );
   }
@@ -205,8 +206,6 @@ function App(): JSX.Element {
               )}
             </p>
           </aside>
-
-          <CommentSection searchTerm={searchTerm} />
           <BearSection searchTerm={searchTerm} />
         </article>
 

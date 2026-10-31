@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import { bearRoutes } from './routes/bears.js';
+import { commentRoutes } from './routes/comments.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -11,6 +12,7 @@ fastify.get('/health', async () => ({
 }));
 
 await fastify.register(bearRoutes);
+await fastify.register(commentRoutes);
 
 const start = async (): Promise<void> => {
   try {
