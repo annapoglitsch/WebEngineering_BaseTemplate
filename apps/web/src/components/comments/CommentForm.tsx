@@ -31,8 +31,10 @@ export function CommentForm({ onAddComment }: CommentFormProps): JSX.Element {
 
       setName('');
       setText('');
-    } catch {
-      setError('Comment could not be created.');
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : 'Comment could not be created.'
+      );
     } finally {
       setIsSubmitting(false);
     }

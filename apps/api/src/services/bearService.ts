@@ -4,6 +4,7 @@ import {
   fetchImageUrls,
   normalizeFileName,
 } from '../upstream/wikipedia.js';
+import { UpstreamError } from '../errors/upStreamErrors.js';
 
 function createBearId(binomial: string): string {
   return binomial
@@ -53,7 +54,7 @@ export async function fetchBears(): Promise<Bear[]> {
   const bears = extractBears(wikitext);
 
   if (bears.length === 0) {
-    throw new Error('Wikipedia returned no parseable bears');
+    throw new UpstreamError('Wikipedia returned no parseable bears');
   }
 
   const imageUrls = await fetchImageUrls(bears.map((bear) => bear.fileName));

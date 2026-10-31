@@ -9,6 +9,18 @@ interface CommentSectionProps {
   bearId: string;
 }
 
+async function getErrorDetail(
+  response: Response,
+  fallback: string
+): Promise<string> {
+  try {
+    const problem: { detail?: string } = await response.json();
+    return problem.detail || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function CommentSection({
   searchTerm,
   bearId,
@@ -34,7 +46,9 @@ export function CommentSection({
         );
 
         if (!response.ok) {
-          throw new Error(`Failed to load comments: ${response.status}`);
+          throw new Error(
+            await getErrorDetail(response, 'Comments could not be loaded.')
+          );
         }
 
         const data: Comment[] = await response.json();
@@ -44,7 +58,11 @@ export function CommentSection({
           return;
         }
 
-        setError('Comments could not be loaded.');
+        setError(
+          error instanceof Error
+            ? error.message
+            : 'Comments could not be loaded.'
+        );
       }
     }
 
@@ -68,7 +86,9 @@ export function CommentSection({
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to create comment: ${response.status}`);
+      throw new Error(
+        await getErrorDetail(response, 'Comment could not be created.')
+      );
     }
 
     const newComment: Comment = await response.json();
@@ -86,14 +106,18 @@ export function CommentSection({
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to delete comment: ${response.status}`);
+        throw new Error(
+          await getErrorDetail(response, 'Comment could not be deleted.')
+        );
       }
 
       setComments((currentComments) =>
         currentComments.filter((comment) => comment.id !== commentId)
       );
-    } catch {
-      setError('Comment could not be deleted.');
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : 'Comment could not be deleted.'
+      );
     }
   };
 

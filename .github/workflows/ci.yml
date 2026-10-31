@@ -4,10 +4,6 @@ on:
   push:
   pull_request:
 
-defaults:
-  run:
-    working-directory: vite-web-project
-
 jobs:
   checks:
     runs-on: ubuntu-latest
@@ -21,7 +17,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: vite-web-project/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -37,3 +33,6 @@ jobs:
 
       - name: Format check
         run: npm run format:check
+
+      - name: Test
+        run: npm test
