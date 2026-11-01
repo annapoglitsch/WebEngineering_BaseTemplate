@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
 import type { Comment } from './types.ts';
+import { API_BASE_URL } from '../../api';
 
 interface CommentSectionProps {
   searchTerm: string;
@@ -41,7 +42,7 @@ export function CommentSection({
         setError(null);
 
         const response = await fetch(
-          `/api/bears/${encodeURIComponent(bearId)}/comments`,
+          `${API_BASE_URL}/api/bears/${encodeURIComponent(bearId)}/comments`,
           { signal: controller.signal }
         );
 
@@ -75,7 +76,7 @@ export function CommentSection({
 
   const addComment = async (author: string, text: string): Promise<void> => {
     const response = await fetch(
-      `/api/bears/${encodeURIComponent(bearId)}/comments`,
+      `${API_BASE_URL}/api/bears/${encodeURIComponent(bearId)}/comments`,
       {
         method: 'POST',
         headers: {
@@ -101,7 +102,7 @@ export function CommentSection({
       setError(null);
 
       const response = await fetch(
-        `/api/comments/${encodeURIComponent(commentId)}`,
+        `${API_BASE_URL}/api/comments/${encodeURIComponent(commentId)}`,
         { method: 'DELETE' }
       );
 

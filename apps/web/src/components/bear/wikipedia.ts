@@ -1,7 +1,8 @@
 import type { Bear } from './types';
+import { API_BASE_URL } from '../../api.ts';
 
 export async function fetchBears(signal?: AbortSignal): Promise<Bear[]> {
-  const response = await fetch('/api/bears', { signal });
+  const response = await fetch(`${API_BASE_URL}/api/bears`, { signal });
 
   if (!response.ok) {
     throw new Error(

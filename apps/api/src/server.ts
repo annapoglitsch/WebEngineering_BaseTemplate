@@ -2,21 +2,56 @@ import Fastify from 'fastify';
 import { ApiError, NotFoundError } from './errors/upStreamErrors.js';
 import { bearRoutes } from './routes/bears.js';
 import { commentRoutes } from './routes/comments.js';
+import cors from '@fastify/cors';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from '@fastify/type-provider-zod';
+import { ProblemDetailsSchema } from './schemas/problem.js';
+import { z } from 'zod';
 
 const fastify = Fastify({
   logger: true,
   requestIdHeader: 'x-request-id',
 });
 
-interface ProblemDetails {
-  type: string;
-  title: string;
-  status: number;
-  detail: string;
-  instance: string;
-  requestId: string;
-  errors?: ApiError['errors'];
-}
+fastify.setValidatorCompiler(validatorCompiler);
+fastify.setSerializerCompiler(serializerCompiler);
+
+const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+await fastify.register(cors, {
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'x-request-id'],
+  exposedHeaders: ['location', 'x-request-id'],
+  credentials: false,
+  maxAge: 600,
+});
+
+await fastify.register(swagger, {
+  openapi: {
+    openapi: '3.1.0',
+    info: {
+      title: 'Bear API',
+      version: '0.1.0',
+    },
+    components: {
+      schemas: {},
+    },
+  },
+  transform: jsonSchemaTransform,
+});
+
+await fastify.register(swaggerUi, {
+  routePrefix: '/api/docs',
+});
 
 function createProblem(
   request: { id: string; url: string },
@@ -24,7 +59,7 @@ function createProblem(
   title: string,
   detail: string,
   errors?: ApiError['errors']
-): ProblemDetails {
+): z.infer<typeof ProblemDetailsSchema> {
   return {
     type: 'about:blank',
     title,
@@ -93,7 +128,6 @@ fastify.get('/health', async () => ({
 
 await fastify.register(bearRoutes);
 await fastify.register(commentRoutes);
-
 const start = async (): Promise<void> => {
   try {
     await fastify.listen({

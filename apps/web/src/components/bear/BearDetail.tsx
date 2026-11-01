@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Bear } from './types';
+import { API_BASE_URL } from '../../api';
 
 interface BearDetailsProps {
   bearId: string;
@@ -18,7 +19,7 @@ export function BearDetails({ bearId }: BearDetailsProps): React.JSX.Element {
 
       try {
         const response = await fetch(
-          `/api/bears/${encodeURIComponent(bearId)}`,
+          `${API_BASE_URL}/api/bears/${encodeURIComponent(bearId)}`,
           { signal: controller.signal }
         );
 
