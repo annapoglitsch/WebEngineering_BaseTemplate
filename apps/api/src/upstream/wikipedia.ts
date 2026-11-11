@@ -7,7 +7,8 @@ import {
 const baseUrl = process.env.WIKIPEDIA_BASE_URL ?? 'https://en.wikipedia.org';
 
 const userAgent =
-  process.env.USER_AGENT ?? 'BearApp/1.0 (mailto:deine-email@example.com)';
+  process.env.USER_AGENT ??
+  'BearApp/1.0 (mailto:anna.poglitsch@stud.hcw.ac.at)';
 
 const ParseSchema = z.object({
   parse: z.object({
