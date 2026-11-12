@@ -12,6 +12,7 @@ import {
 } from '@fastify/type-provider-zod';
 import { ProblemDetailsSchema } from './schemas/problem.js';
 import { z } from 'zod';
+import { hasZodFastifySchemaValidationErrors } from '@fastify/type-provider-zod';
 
 const fastify = Fastify({
   logger: true,
@@ -77,7 +78,22 @@ fastify.addHook('onRequest', async (request, reply) => {
 
 fastify.setErrorHandler((error, request, reply) => {
   request.log.error({ err: error, requestId: request.id }, 'Request failed');
+  if (hasZodFastifySchemaValidationErrors(error)) {
+    const errors = error.validation.map((issue) => ({
+      field: issue.instancePath || 'body',
+      message: issue.message ?? 'Invalid value',
+    }));
 
+    const problem = createProblem(
+      request,
+      400,
+      'Bad Request',
+      'Request validation failed.',
+      errors
+    );
+
+    return reply.code(400).type('application/problem+json').send(problem);
+  }
   if (error instanceof ApiError) {
     const problem = createProblem(
       request,
