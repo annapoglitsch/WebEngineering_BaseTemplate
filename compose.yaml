@@ -6,8 +6,12 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
+      DATABASE_URL: 'postgresql://bears:bears_local@db:5432/bears'
     expose:
       - '3001'
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -19,3 +23,24 @@ services:
     depends_on:
       - api
     restart: unless-stopped
+
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: bears
+      POSTGRES_PASSWORD: bears_local
+      POSTGRES_DB: bears
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+volumes:
+  postgres_data:

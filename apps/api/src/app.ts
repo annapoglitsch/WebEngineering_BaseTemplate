@@ -13,19 +13,26 @@ import {
 import { ProblemDetailsSchema } from './schemas/problem.js';
 import { z } from 'zod';
 import { hasZodFastifySchemaValidationErrors } from '@fastify/type-provider-zod';
+import { env } from './env.js';
+import { pool } from './db.js';
 
 const fastify = Fastify({
   logger: true,
   requestIdHeader: 'x-request-id',
 });
 
+pool.on('error', (err) => {
+  fastify.log.warn({ err }, 'Idle PostgreSQL connection failed');
+});
+
+fastify.addHook('onClose', async () => {
+  await pool.end();
+});
+
 fastify.setValidatorCompiler(validatorCompiler);
 fastify.setSerializerCompiler(serializerCompiler);
 
-const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = env.CORS_ORIGINS;
 
 await fastify.register(cors, {
   origin: allowedOrigins,
@@ -141,6 +148,22 @@ fastify.get('/health', async () => ({
   version: '1.0.0',
   uptime: process.uptime(),
 }));
+
+fastify.get('/health/ready', async (request, reply) => {
+  try {
+    await pool.query('SELECT 1');
+  } catch {
+    return reply.code(503).type('application/problem+json').send({
+      type: 'about:blank',
+      title: 'Service Unavailable',
+      status: 503,
+      detail: 'The database is temporarily unavailable.',
+      instance: request.url,
+    });
+  }
+
+  return { status: 'ready' };
+});
 
 await fastify.register(bearRoutes);
 await fastify.register(commentRoutes);
