@@ -1,0 +1,1 @@
+ALTER TABLE "bears" ADD COLUMN "file_name" text NOT NULL;

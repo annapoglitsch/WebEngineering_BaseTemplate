@@ -5,6 +5,9 @@ import {
   normalizeFileName,
 } from '../upstream/wikipedia.js';
 import { UpstreamError } from '../errors/upStreamErrors.js';
+import { db } from '../db.js';
+import { bears } from '../db/schema.js';
+import { eq } from 'drizzle-orm';
 
 function createBearId(binomial: string): string {
   return binomial
@@ -71,7 +74,23 @@ export async function fetchBears(): Promise<Bear[]> {
   return BearsSchema.parse(result);
 }
 
+function toBear(row: typeof bears.$inferSelect): Bear {
+  return BearSchema.parse({
+    id: row.id,
+    name: row.name,
+    binomial: row.binomial,
+    fileName: row.fileName,
+    range: row.range,
+    ...(row.imageUrl === null ? {} : { image: row.imageUrl }),
+  });
+}
+
+export async function listBearsFromDb(): Promise<Bear[]> {
+  const rows = await db.select().from(bears).orderBy(bears.name, bears.id);
+  return rows.map(toBear);
+}
+
 export async function fetchBearById(id: string): Promise<Bear | null> {
-  const bears = await fetchBears();
-  return bears.find((bear) => bear.id === id) ?? null;
+  const [row] = await db.select().from(bears).where(eq(bears.id, id)).limit(1);
+  return row ? toBear(row) : null;
 }

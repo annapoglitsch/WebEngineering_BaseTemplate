@@ -17,6 +17,7 @@ COPY package.json package-lock.json ./
 COPY apps/api/package.json ./apps/api/package.json
 RUN npm ci --omit=dev --workspace=@project/api --ignore-scripts
 COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY apps/api/drizzle ./apps/api/drizzle
 
 EXPOSE 3001
 CMD ["npm", "run", "start", "--workspace=@project/api"]

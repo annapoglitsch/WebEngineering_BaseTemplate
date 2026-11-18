@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncZod } from '@fastify/type-provider-zod';
-import { fetchBears, fetchBearById } from '../services/bearService.js';
+import { listBearsFromDb, fetchBearById } from '../services/bearService.js';
 import { NotFoundError } from '../errors/upStreamErrors.js';
 import { BearId, BearSchema, BearsSchema } from '../schemas/bear.js';
 import { z } from 'zod';
@@ -19,7 +19,7 @@ export const bearRoutes: FastifyPluginAsyncZod = async (app) => {
       },
     },
     async () => {
-      return await fetchBears();
+      return await listBearsFromDb();
     }
   );
 
